@@ -22,6 +22,20 @@ class BooksViewModel: ObservableObject {
         setupObservers()
     }
     
+    let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
+    
+    let dateFormatterCSV: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .none
+        return formatter
+    }()
+    
     func copyToClipboard() {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
@@ -62,7 +76,7 @@ class BooksViewModel: ObservableObject {
     }
     
     private func fetchSelectedCSV() -> String {
-        var csvText = "Author;Title;Highlight;Note\n"
+        var csvText = "Author;Title;Highlight;Note;Date\n"
         
         // Assuming books are already loaded and annotations are linked to the correct books
         for book in books where selectedAnnotations.contains(where: { annotationId in
@@ -73,9 +87,10 @@ class BooksViewModel: ObservableObject {
                 let titleString = "\"\(book.title?.replacingOccurrences(of: "\"", with: "\"\"") ?? "Unknown Title")\""
                 let highlightString = "\"\(annotation.selectedText.replacingOccurrences(of: "\"", with: "\"\""))\""
                 let noteString = "\"\(annotation.note?.replacingOccurrences(of: "\"", with: "\"\"") ?? "")\""
-                
-                let newLine = "\(authorString);\(titleString);\(highlightString);\(noteString)\n"
+                let modificationDateString = dateFormatterCSV.string(from: annotation.modificationDate)
+                let newLine = "\(authorString);\(titleString);\(highlightString);\(noteString);\"\(modificationDateString)\"\n"
                 csvText.append(contentsOf: newLine)
+            
             }
         }
         

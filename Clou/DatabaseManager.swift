@@ -13,6 +13,7 @@ struct Annotation: Identifiable {
     let id = UUID()
     var selectedText: String
     var note: String?
+    var modificationDate: Date
 }
 
 struct Book: Identifiable {
@@ -87,11 +88,12 @@ class DatabaseManager {
             let annotations = Table("ZAEANNOTATION")
             let selectedText = Expression<String>("ZANNOTATIONSELECTEDTEXT")
             let note = Expression<String?>("ZANNOTATIONNOTE")
+            let modificationDate = Expression<Double>("ZANNOTATIONMODIFICATIONDATE")
             let annotationAssetId = Expression<String>("ZANNOTATIONASSETID")
             
-            // Fetch all annotations for a given assetId
-            return try annotationDB.prepare(annotations.select(selectedText, note).where(annotationAssetId == assetId && selectedText != "")).map { annotation in
-                Annotation(selectedText: annotation[selectedText], note: annotation[note])
+            return try annotationDB.prepare(annotations.select(selectedText, note, modificationDate).where(annotationAssetId == assetId && selectedText != "")).map { annotation in
+                let date = Date(timeIntervalSinceReferenceDate: TimeInterval(annotation[modificationDate]))
+                return Annotation(selectedText: annotation[selectedText], note: annotation[note], modificationDate: date)
             }
         } catch {
             print("Annotation fetch failed: \(error)")

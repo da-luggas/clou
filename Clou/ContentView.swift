@@ -46,6 +46,9 @@ struct AnnotationsView: View {
                                     .italic()
                                     .padding([.bottom])
                             }
+                            Text(viewModel.dateFormatter.string(from: annotation.modificationDate))
+                                .font(.caption)
+                                .foregroundColor(.gray)
                         }
                     }
                 }
